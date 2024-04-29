@@ -28,5 +28,3 @@ This repository contains a simple Python script designed to assist in learning p
 ## Notes
 
 This repository is intended for educational purposes and provides a basic framework for piano note practice. It does not include detailed explanations of the underlying code logic.# luise_music_note_generator
-# fragen-reise
-# fragen-reise

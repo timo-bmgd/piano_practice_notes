@@ -1,50 +1,71 @@
-import tkinter as tk;
-from random import Random
+import tkinter as tk
+import random
 
-def update_question_label():
-    question_label.configure(text=q.next())
-    number_label.configure(text=q.index + 1)
+# List of musical notes
+musical_notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
-class Questions:
-    orderby = ""
-    index = 0
-    question = None
+def update_label():
+    # Update the label with a randomly selected musical note
+    selected_note = random.choice(musical_notes)
+    current_note.config(text=selected_note)
 
-    def __init__(self, name, order="inorder"):
-        self.name = name
-        self.file = open(self.name + ".txt", "r")
-        self.question = self.file.readlines()
-        self.orderby = order
+    # Update the background color
+    new_color = random_color()
+    current_note.config(bg=new_color)
 
-    def next(self):
-        if self.orderby and self.orderby == "random":
-            return self.pick_random()
-        else:
-            return self.pick_inorder()
+    if update_state:
+        root.after(int(delay_slider.get() * 1000), update_label)
 
-    def pick_random(self):
-        self.index = Random().randint(0, len(self.question) - 1)
-        return self.question[self.index]
+def adjust_font_size(event):
+    # Adjust the label's font size based on the window's width
+    label_width = event.width
+    font_size = max(10, label_width // 15)  # Adjust this value as needed
+    current_note.config(font=("Arial", font_size))
 
-    def pick_inorder(self):
-        self.index += 1
-        return self.question[self.index]
+def toggle_updating_state():
+    global update_state
+    if update_state:
+        update_state = False
+        on_button.config(state="active")
+        off_button.config(state="disabled")
+    else:
+        update_state = True
+        on_button.config(state="disabled")
+        off_button.config(state="active")
+        update_label()
 
+def random_color():
+    # Generate a random color in hexadecimal format
+    return f"#{random.randint(0, 255):02X}{random.randint(0, 255):02X}{random.randint(0, 255):02X}"
 
-q = Questions("partner")
-
+# Create the main window
 root = tk.Tk()
+root.title("Random Musical Note")
 
-root.geometry("500x500")
-root.title("Fragen-Reise")
-root.configure(background="pink")
+# Create a label
+current_note = tk.Label(root, text="", font=("Arial", 24), bg=random_color())
+current_note.pack(pady=20, fill="both", expand=True)
 
-number_label = tk.Label(root, text="0", bg="pink")
-question_label = tk.Label(root, text="Press Next", font=('Helvetica', 18), bg="pink", wraplength=400)
-next_button = tk.Button(root, text="Next", command=update_question_label, bg="pink", highlightbackground="pink")
+# Create a slider for delay
+delay_slider = tk.Scale(root, from_=0.1, to=5.0, resolution=0.1, orient="horizontal", label="Delay (s)")
+delay_slider.set(1.0)  # Initial value
+delay_slider.pack()
 
-number_label.pack(padx=5, pady=5, side='left')
-question_label.pack(padx=20, pady=40, anchor='center')
-next_button.pack(padx=20, pady=20, side='bottom')
+# Initialize the update state
+update_state = False
 
+# Create an "On" button
+on_button = tk.Button(root, text="On", command=toggle_updating_state, state="active")
+on_button.pack()
+
+# Create an "Off" button
+off_button = tk.Button(root, text="Off", command=toggle_updating_state, state="disabled")
+off_button.pack()
+
+# Bind the adjust_font_size function to window resizing events
+root.bind("<Configure>", adjust_font_size)
+
+# Start the Tkinter main loop
 root.mainloop()
+
+
